@@ -215,12 +215,122 @@ impl<'a> Game<'a> {
         }
     }
 }
+
+struct GameManager<'a> {
+    assets: &'a Assets,
+    stars: StarsBackground,
+    pixel_camera: Camera2D,
+    game: Option<Game<'a>>,
+    transition_time: f32,
+}
+impl<'a> GameManager<'a> {
+    fn new(assets: &'a Assets) -> Self {
+        let mut pixel_camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
+        pixel_camera.target = vec2(SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0);
+        Self {
+            assets,
+            pixel_camera,
+            stars: StarsBackground::new(),
+            game: None,
+            transition_time: 0.0,
+        }
+    }
+    fn update(&mut self) {
+        let transition_length = 1.0;
+        let delta_time = get_frame_time();
+        let (actual_screen_width, actual_screen_height) = screen_size();
+        match &mut self.game {
+            Some(game) if self.transition_time > transition_length / 2.0 => {
+                game.update();
+                if self.transition_time < transition_length {
+                    self.transition_time += delta_time;
+                    let amt = (self.transition_time - transition_length / 2.0)
+                        / (transition_length / 2.0);
+                    //let amt = 1.0 - (2.0_f32.powf(amt.powi(2)) - 1.0);
+                    let amt = 1.0 - amt;
+                    draw_rectangle(
+                        0.0,
+                        0.0,
+                        actual_screen_width,
+                        actual_screen_height,
+                        BLACK.with_alpha(amt),
+                    );
+                }
+            }
+            _ => {
+                if self.transition_time > 0.0 {
+                    self.transition_time += delta_time;
+                }
+                let scale_factor =
+                    (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
+                let (mouse_x, mouse_y) = mouse_position();
+                let mouse_x = mouse_x / scale_factor;
+                let mouse_y = mouse_y / scale_factor;
+                set_camera(&self.pixel_camera);
+                clear_background(BLACK);
+                self.stars.draw(delta_time, self.pixel_camera.target);
+
+                let offset = vec2(20.0, 20.0);
+                let texture_offset = vec2(6.0, 43.0);
+                let button_size = vec2(136.0, 23.0);
+
+                let hovered_play_button = (offset.x + texture_offset.x
+                    ..offset.x + texture_offset.x + button_size.x)
+                    .contains(&mouse_x)
+                    && (offset.y + texture_offset.y..offset.y + texture_offset.y + button_size.y)
+                        .contains(&mouse_y);
+                draw_texture(
+                    &self
+                        .assets
+                        .menu
+                        .get_at_time(if hovered_play_button { 1 } else { 0 }),
+                    offset.x,
+                    offset.y,
+                    WHITE,
+                );
+
+                set_default_camera();
+                clear_background(BLACK);
+                draw_texture_ex(
+                    &self.pixel_camera.render_target.as_ref().unwrap().texture,
+                    0.0,
+                    0.0,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(Vec2::new(
+                            SCREEN_WIDTH * scale_factor,
+                            SCREEN_HEIGHT * scale_factor,
+                        )),
+                        ..Default::default()
+                    },
+                );
+                if self.transition_time > 0.0 {
+                    let amt = self.transition_time / (transition_length / 2.0);
+                    //let amt = 2.0_f32.powf(amt.powi(2)) - 1.0;
+                    draw_rectangle(
+                        0.0,
+                        0.0,
+                        actual_screen_width,
+                        actual_screen_height,
+                        BLACK.with_alpha(amt),
+                    );
+                }
+                if hovered_play_button && is_mouse_button_pressed(MouseButton::Left) {
+                    self.game = Some(Game::new(self.assets));
+                    self.transition_time += delta_time;
+                }
+            }
+        }
+    }
+}
+
 #[macroquad::main("space splatter")]
 async fn main() {
+    miniquad::window::set_window_size(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32);
     let assets = Assets::default();
-    let mut game = Game::new(&assets);
+    let mut game_manager = GameManager::new(&assets);
     loop {
-        game.update();
+        game_manager.update();
         next_frame().await
     }
 }
