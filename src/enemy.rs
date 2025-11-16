@@ -115,10 +115,10 @@ pub static ENEMIES: LazyLock<Vec<EnemyType>> = LazyLock::new(|| {
                 movement: EnemyMovement::Chase,
                 projectile_firing: ProjectileFiring::Around(&ALIEN_BALL, 10),
                 change_state: StateChangeCondition::AnimationFinish,
-                damage_on_exit: Some(30.0),
+                damage_on_exit: Some(10.0),
             },
         ],
-        health: 90.0,
+        health: 80.0,
     };
     vec![greeno, dog, shooter, bigo]
 });
