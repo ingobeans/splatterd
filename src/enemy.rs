@@ -15,6 +15,7 @@ pub enum ProjectileFiring {
     Forwards(&'static ProjectileType),
     Around(&'static ProjectileType, u8),
 }
+#[expect(dead_code)]
 pub enum StateChangeCondition {
     Never,
     Always,
@@ -22,6 +23,7 @@ pub enum StateChangeCondition {
     NearPlayer,
     AnimationFinish,
 }
+#[expect(dead_code)]
 pub enum EnemyMovement {
     Chase,
     None,

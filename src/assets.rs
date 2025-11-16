@@ -355,7 +355,7 @@ impl Default for World {
         for chunk in &world.interactable {
             for (index, tile) in chunk.tiles.iter().enumerate() {
                 let tile = tile - 1;
-                if tile >= 112 && tile <= 127 {
+                if (112..=127).contains(&tile) {
                     let x = (index % 16) as i16 + chunk.x;
                     let y = (index / 16) as i16 + chunk.y;
                     world.lockers.push((

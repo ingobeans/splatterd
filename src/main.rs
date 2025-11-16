@@ -153,7 +153,7 @@ impl<'a> Game<'a> {
         for (locker_pos, slot) in self.world.lockers.iter_mut() {
             if (self.player.pos + vec2(-8.0, 8.0)).distance_squared(*locker_pos) < 512.0 {
                 draw_texture_ex(
-                    &self.assets.locker.get_at_time(1),
+                    self.assets.locker.get_at_time(1),
                     locker_pos.x,
                     locker_pos.y - 48.0 + 16.0,
                     WHITE,
@@ -174,7 +174,7 @@ impl<'a> Game<'a> {
                 }
             } else {
                 draw_texture_ex(
-                    &self.assets.locker.get_at_time(0),
+                    self.assets.locker.get_at_time(0),
                     locker_pos.x,
                     locker_pos.y - 48.0 + 16.0,
                     WHITE,
@@ -232,11 +232,10 @@ impl<'a> Game<'a> {
             self.escape_pod_door,
             delta_time,
         );
-        if let GameState::Die(time) = &self.state {
-            if graphics::draw_death(self.assets, *time, &self.player, (mouse_x, mouse_y)) {
+        if let GameState::Die(time) = &self.state
+            && graphics::draw_death(self.assets, *time, &self.player, (mouse_x, mouse_y)) {
                 *self = Self::new(self.assets)
             }
-        }
         set_default_camera();
         clear_background(BLACK);
         draw_texture_ex(
@@ -329,7 +328,7 @@ impl<'a> GameManager<'a> {
                     && (offset.y + texture_offset.y..offset.y + texture_offset.y + button_size.y)
                         .contains(&mouse_y);
                 draw_texture(
-                    &self
+                    self
                         .assets
                         .menu
                         .get_at_time(if hovered_play_button { 1 } else { 0 }),

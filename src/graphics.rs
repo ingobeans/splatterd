@@ -54,7 +54,7 @@ pub fn draw_death(assets: &Assets, time: f32, player: &Player, mouse: (f32, f32)
             p.y + (SCREEN_HEIGHT - texture.height()) / 2.0,
         );
         let texture = assets.die.get_at_time(if hovered { 1 } else { 0 });
-        draw_texture(&texture, draw_pos.x, draw_pos.y, WHITE.with_alpha(amt));
+        draw_texture(texture, draw_pos.x, draw_pos.y, WHITE.with_alpha(amt));
         hovered && is_mouse_button_pressed(MouseButton::Left)
     }
 }
@@ -73,7 +73,7 @@ pub fn draw_escape_pod(
 
     if time == 0.0 {
         draw_texture_ex(
-            &assets.escape_pod.animations[0].get_at_time(0),
+            assets.escape_pod.animations[0].get_at_time(0),
             escape_pod.x,
             escape_pod.y,
             WHITE,
@@ -96,7 +96,7 @@ pub fn draw_escape_pod(
         pos = player.pos.lerp(target, time / walk_time);
 
         draw_texture_ex(
-            &assets.escape_pod.animations[0].get_at_time(0),
+            assets.escape_pod.animations[0].get_at_time(0),
             escape_pod.x,
             escape_pod.y,
             WHITE,
@@ -107,7 +107,7 @@ pub fn draw_escape_pod(
         let amt = 2.0_f32.powf(amt.powi(3)) - 1.0;
         let pod_pos = escape_pod.lerp(escape_pod + vec2(0.0, 1.0 * SCREEN_HEIGHT), amt);
         draw_texture_ex(
-            &assets.escape_pod.animations[1].get_at_time((time * 1000.0) as u32),
+            assets.escape_pod.animations[1].get_at_time((time * 1000.0) as u32),
             pod_pos.x,
             pod_pos.y,
             WHITE,
@@ -190,7 +190,7 @@ pub fn draw_ui(
         let x = (actual_screen_width - tooltip.width() * scale_factor) / 2.0;
         let y = actual_screen_height - tooltip.height() * scale_factor - 4.0 * scale_factor;
         draw_texture_ex(
-            &tooltip,
+            tooltip,
             x,
             y,
             WHITE,
