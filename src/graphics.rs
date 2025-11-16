@@ -154,7 +154,7 @@ pub fn draw_ui(
     draw_rectangle(
         x + 8.0 * scale_factor,
         y + 2.0 * scale_factor,
-        170.0 * scale_factor * player.health / 100.0,
+        170.0 * scale_factor,
         20.0 * scale_factor,
         BLACK,
     );
