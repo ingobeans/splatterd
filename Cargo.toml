@@ -5,6 +5,6 @@ edition = "2024"
 
 [dependencies]
 asefile = "0.3.8"
-macroquad = "0.4.14"
+macroquad = { version = "0.4.14", features = ["audio"] }
 image = "0.24.9"
 pathfinding = "4.14.0"

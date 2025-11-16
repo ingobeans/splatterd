@@ -2,7 +2,10 @@ use std::{collections::HashMap, iter::Map};
 
 use asefile::{self, AsepriteFile};
 use image::EncodableLayout;
-use macroquad::prelude::*;
+use macroquad::{
+    audio::{Sound, load_sound_from_bytes},
+    prelude::*,
+};
 
 use crate::{
     player::{WEAPONS, Weapon},
@@ -22,9 +25,10 @@ pub struct Assets {
     pub win: Texture2D,
     pub menu: Animation,
     pub die: Animation,
+    pub sfx: Vec<Sound>,
 }
-impl Default for Assets {
-    fn default() -> Self {
+impl Assets {
+    pub async fn new() -> Self {
         Self {
             tileset: Spritesheet::new(
                 load_ase_texture(include_bytes!("../assets/tileset.ase"), None),
@@ -44,6 +48,17 @@ impl Default for Assets {
             win: load_ase_texture(include_bytes!("../assets/win.ase"), None),
             menu: Animation::from_file(include_bytes!("../assets/menu.ase")),
             die: Animation::from_file(include_bytes!("../assets/die.ase")),
+            sfx: vec![
+                load_sound_from_bytes(include_bytes!("../assets/sfx/gun.wav"))
+                    .await
+                    .unwrap(),
+                load_sound_from_bytes(include_bytes!("../assets/sfx/rifle.wav"))
+                    .await
+                    .unwrap(),
+                load_sound_from_bytes(include_bytes!("../assets/sfx/shotgun.wav"))
+                    .await
+                    .unwrap(),
+            ],
         }
     }
 }

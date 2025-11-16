@@ -108,6 +108,7 @@ impl<'a> Game<'a> {
                 &mut self.enemies,
                 &mut self.projectiles,
                 (mouse_x, mouse_y),
+                self.assets,
             );
         }
         match &mut self.state {
@@ -233,9 +234,10 @@ impl<'a> Game<'a> {
             delta_time,
         );
         if let GameState::Die(time) = &self.state
-            && graphics::draw_death(self.assets, *time, &self.player, (mouse_x, mouse_y)) {
-                *self = Self::new(self.assets)
-            }
+            && graphics::draw_death(self.assets, *time, &self.player, (mouse_x, mouse_y))
+        {
+            *self = Self::new(self.assets)
+        }
         set_default_camera();
         clear_background(BLACK);
         draw_texture_ex(
@@ -328,8 +330,7 @@ impl<'a> GameManager<'a> {
                     && (offset.y + texture_offset.y..offset.y + texture_offset.y + button_size.y)
                         .contains(&mouse_y);
                 draw_texture(
-                    self
-                        .assets
+                    self.assets
                         .menu
                         .get_at_time(if hovered_play_button { 1 } else { 0 }),
                     offset.x,
@@ -374,7 +375,7 @@ impl<'a> GameManager<'a> {
 
 #[macroquad::main("space splatter")]
 async fn main() {
-    let assets = Assets::default();
+    let assets = Assets::new().await;
     let mut game_manager = GameManager::new(&assets);
     loop {
         game_manager.update();

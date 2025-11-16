@@ -1,6 +1,9 @@
 use std::{borrow::Borrow, collections::HashMap, f32::consts::PI};
 
-use macroquad::prelude::*;
+use macroquad::{
+    audio::{PlaySoundParams, play_sound},
+    prelude::*,
+};
 
 use crate::{
     assets::{Assets, BARRIER, Chunk, World},
@@ -139,21 +142,25 @@ pub struct Weapon {
     pub projectile: &'static ProjectileType,
     pub attack_delay: f32,
     pub multishot: Option<(u8, f32)>,
+    pub sfx_index: usize,
 }
 pub static GUN: Weapon = Weapon {
     projectile: &ENERGY_BALL,
     attack_delay: 1.0 / 3.0,
     multishot: None,
+    sfx_index: 0,
 };
 pub static RIFLE: Weapon = Weapon {
     projectile: &ENERGY_SHOT,
     attack_delay: 1.0 / 7.0,
     multishot: None,
+    sfx_index: 1,
 };
 pub static SHOTGUN: Weapon = Weapon {
     projectile: &ENERGY_BALL,
     attack_delay: 0.6,
     multishot: Some((3, PI / 5.0)),
+    sfx_index: 2,
 };
 pub static WEAPONS: &[&Weapon] = &[&GUN, &RIFLE, &SHOTGUN];
 
@@ -191,6 +198,7 @@ impl Player {
         enemies: &mut Vec<Enemy>,
         projectiles: &mut Vec<Projectile>,
         mouse: (f32, f32),
+        assets: &Assets,
     ) {
         self.animation_time += delta_time;
         self.walking = false;
@@ -209,6 +217,13 @@ impl Player {
             && let Some(weapon) = self.weapon
             && is_mouse_button_down(MouseButton::Left)
         {
+            play_sound(
+                &assets.sfx[weapon.sfx_index],
+                PlaySoundParams {
+                    looped: false,
+                    volume: 0.04,
+                },
+            );
             self.attack_counter = weapon.attack_delay;
             let mut new = Vec::new();
             let multishot = weapon.multishot.unwrap_or((1, 0.0));
