@@ -246,8 +246,7 @@ impl<'a> GameManager<'a> {
                     self.transition_time += delta_time;
                     let amt = (self.transition_time - transition_length / 2.0)
                         / (transition_length / 2.0);
-                    //let amt = 1.0 - (2.0_f32.powf(amt.powi(2)) - 1.0);
-                    let amt = 1.0 - amt;
+                    let amt = 1.0 - (2.0_f32.powf(amt.powi(2)) - 1.0);
                     draw_rectangle(
                         0.0,
                         0.0,
@@ -306,7 +305,7 @@ impl<'a> GameManager<'a> {
                 );
                 if self.transition_time > 0.0 {
                     let amt = self.transition_time / (transition_length / 2.0);
-                    //let amt = 2.0_f32.powf(amt.powi(2)) - 1.0;
+                    let amt = 2.0_f32.powf(amt.powi(2)) - 1.0;
                     draw_rectangle(
                         0.0,
                         0.0,
@@ -326,7 +325,6 @@ impl<'a> GameManager<'a> {
 
 #[macroquad::main("space splatter")]
 async fn main() {
-    miniquad::window::set_window_size(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32);
     let assets = Assets::default();
     let mut game_manager = GameManager::new(&assets);
     loop {
