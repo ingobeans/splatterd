@@ -288,7 +288,8 @@ impl<'a> GameManager<'a> {
     }
     fn update(&mut self) {
         let transition_length = 1.0;
-        let delta_time = get_frame_time();
+        // cap delta time to a minimum of 60 fps.
+        let delta_time = get_frame_time().min(1.0 / 60.0);
         let (actual_screen_width, actual_screen_height) = screen_size();
         match &mut self.game {
             Some(game) if self.transition_time > transition_length / 2.0 => {
