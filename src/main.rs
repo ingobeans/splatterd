@@ -32,6 +32,7 @@ struct Game<'a> {
     escape_pod_door: Vec2,
     escape_pod: Vec2,
     state: GameState,
+    splatter: Vec<(Vec2, Vec2, f32)>,
 }
 impl<'a> Game<'a> {
     fn new(assets: &'a Assets) -> Self {
@@ -87,6 +88,7 @@ impl<'a> Game<'a> {
             stars: StarsBackground::new(),
             projectiles: Vec::with_capacity(10),
             state: GameState::Running,
+            splatter: Vec::with_capacity(30),
         }
     }
     fn update(&mut self) {
@@ -126,6 +128,21 @@ impl<'a> Game<'a> {
             WHITE,
             DrawTextureParams::default(),
         );
+
+        for (pos, dir, index) in self.splatter.iter() {
+            self.assets.tileset.draw_sprite(
+                pos.x,
+                pos.y,
+                *index,
+                9.0,
+                Some(&DrawTextureParams {
+                    rotation: dir.to_angle(),
+                    dest_size: Some(vec2(16.0, 10.0)),
+                    ..Default::default()
+                }),
+            );
+        }
+
         let mut can_take_weapon = false;
 
         for (locker_pos, slot) in self.world.lockers.iter_mut() {
@@ -186,6 +203,7 @@ impl<'a> Game<'a> {
                 &mut self.enemies,
                 &mut self.player,
                 &self.world,
+                &mut self.splatter,
                 delta_time,
             )
         });

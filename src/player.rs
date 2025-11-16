@@ -69,6 +69,7 @@ impl Projectile {
         enemies: &mut [Enemy],
         player: &mut Player,
         world: &World,
+        splatter: &mut Vec<(Vec2, Vec2, f32)>,
         delta_time: f32,
     ) -> bool {
         self.pos += self.dir * self.ty.speed * delta_time;
@@ -82,6 +83,7 @@ impl Projectile {
                     return false;
                 }
                 enemy.health -= self.ty.damage;
+                splatter.push((enemy.pos, self.dir, rand::gen_range(0, 6) as f32));
                 return false;
             }
         } else if player.pos.distance_squared(self.pos) < 256.0 {

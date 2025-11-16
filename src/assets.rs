@@ -502,7 +502,6 @@ impl Spritesheet {
             sprite_size,
         }
     }
-    #[expect(dead_code)]
     /// Same as `draw_tile`, except centered
     pub fn draw_sprite(
         &self,
