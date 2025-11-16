@@ -8,6 +8,17 @@ mod graphics;
 mod player;
 mod utils;
 
+pub enum GameState {
+    Running,
+    Die(f32),
+    Escape(f32),
+}
+impl GameState {
+    fn running(&self) -> bool {
+        matches!(self, GameState::Running)
+    }
+}
+
 struct Game<'a> {
     assets: &'a Assets,
     world: World,
@@ -20,7 +31,7 @@ struct Game<'a> {
     projectiles: Vec<Projectile>,
     escape_pod_door: Vec2,
     escape_pod: Vec2,
-    escaping_animation: f32,
+    state: GameState,
 }
 impl<'a> Game<'a> {
     fn new(assets: &'a Assets) -> Self {
@@ -75,7 +86,7 @@ impl<'a> Game<'a> {
             enemies: Vec::with_capacity(10), // todo: adjust capcacity later on?
             stars: StarsBackground::new(),
             projectiles: Vec::with_capacity(10),
-            escaping_animation: 0.0,
+            state: GameState::Running,
         }
     }
     fn update(&mut self) {
@@ -88,7 +99,7 @@ impl<'a> Game<'a> {
         let mouse_x = mouse_x / scale_factor;
         let mouse_y = mouse_y / scale_factor;
 
-        if self.escaping_animation == 0.0 {
+        if self.state.running() {
             self.player.update(
                 delta_time,
                 &mut self.world,
@@ -96,8 +107,11 @@ impl<'a> Game<'a> {
                 &mut self.projectiles,
                 (mouse_x, mouse_y),
             );
-        } else {
-            self.escaping_animation += delta_time;
+        }
+        match &mut self.state {
+            GameState::Die(t) => *t += delta_time,
+            GameState::Escape(t) => *t += delta_time,
+            _ => {}
         }
         self.pixel_camera.target = self.player.camera_pos.floor();
         set_camera(&self.pixel_camera);
@@ -151,7 +165,7 @@ impl<'a> Game<'a> {
             let pos = vec2(*x as f32, *y as f32) * 16.0;
             (entity.draw)(entity, self.assets, pos);
         }
-        if self.escaping_animation == 0.0 {
+        if self.state.running() {
             self.player.draw(self.assets, (mouse_x, mouse_y));
         }
         self.enemies.retain_mut(|enemy| {
@@ -182,14 +196,24 @@ impl<'a> Game<'a> {
             WHITE,
             DrawTextureParams::default(),
         );
+        let escaping_animation = if let GameState::Escape(time) = &self.state {
+            *time
+        } else {
+            0.0
+        };
         graphics::draw_escape_pod(
             self.assets,
-            self.escaping_animation,
+            escaping_animation,
             &mut self.player,
             self.escape_pod,
             self.escape_pod_door,
             delta_time,
         );
+        if let GameState::Die(time) = &self.state {
+            if graphics::draw_death(self.assets, *time, &self.player, (mouse_x, mouse_y)) {
+                *self = Self::new(self.assets)
+            }
+        }
         set_default_camera();
         clear_background(BLACK);
         draw_texture_ex(
@@ -205,12 +229,15 @@ impl<'a> Game<'a> {
                 ..Default::default()
             },
         );
-        let by_escape_pod = self.escaping_animation == 0.0
-            && self.player.pos.distance_squared(self.escape_pod_door) < 256.0;
+        let by_escape_pod =
+            self.state.running() && self.player.pos.distance_squared(self.escape_pod_door) < 256.0;
         if by_escape_pod && is_key_pressed(KeyCode::E) {
-            self.escaping_animation += 0.001;
+            self.state = GameState::Escape(0.0);
         }
-        if self.escaping_animation == 0.0 {
+        if self.player.health <= 0.0 && self.state.running() {
+            self.state = GameState::Die(0.0);
+        }
+        if self.state.running() {
             graphics::draw_ui(self.assets, &self.player, can_take_weapon, by_escape_pod);
         }
     }

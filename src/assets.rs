@@ -21,6 +21,7 @@ pub struct Assets {
     pub healthbar: Texture2D,
     pub win: Texture2D,
     pub menu: Animation,
+    pub die: Animation,
 }
 impl Default for Assets {
     fn default() -> Self {
@@ -42,6 +43,7 @@ impl Default for Assets {
             healthbar: load_ase_texture(include_bytes!("../assets/healthbar.ase"), None),
             win: load_ase_texture(include_bytes!("../assets/win.ase"), None),
             menu: Animation::from_file(include_bytes!("../assets/menu.ase")),
+            die: Animation::from_file(include_bytes!("../assets/die.ase")),
         }
     }
 }
