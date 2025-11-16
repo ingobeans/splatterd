@@ -130,11 +130,16 @@ impl<'a> Game<'a> {
         );
 
         for (pos, dir, index) in self.splatter.iter() {
+            let (x, y) = if *index >= 5.0 {
+                (*index - 5.0, 10.0)
+            } else {
+                (*index, 9.0)
+            };
             self.assets.tileset.draw_sprite(
                 pos.x,
                 pos.y,
-                *index,
-                9.0,
+                x,
+                y,
                 Some(&DrawTextureParams {
                     rotation: dir.to_angle(),
                     dest_size: Some(vec2(16.0, 10.0)),

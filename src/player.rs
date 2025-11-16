@@ -83,7 +83,12 @@ impl Projectile {
                     return false;
                 }
                 enemy.health -= self.ty.damage;
-                splatter.push((enemy.pos, self.dir, rand::gen_range(0, 6) as f32));
+                splatter.push((enemy.pos, self.dir, rand::gen_range(0, 5) as f32));
+                splatter.push((
+                    enemy.pos + self.dir * 16.0,
+                    self.dir,
+                    rand::gen_range(5, 5 + 8) as f32,
+                ));
                 return false;
             }
         } else if player.pos.distance_squared(self.pos) < 256.0 {
