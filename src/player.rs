@@ -224,7 +224,7 @@ impl Player {
                 new.push(Projectile {
                     ty: weapon.projectile,
                     time: 0.0,
-                    pos: self.pos + 8.0,
+                    pos: (self.pos + 8.0) + Vec2::from_angle(angle) * 8.0,
                     dir: Vec2::from_angle(angle),
                     friendly: true,
                 });
